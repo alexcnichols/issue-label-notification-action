@@ -534,7 +534,7 @@ async function run() {
         body: comment
       });
     } else {
-      console.log("No matching recipients found for label ${label}.");
+      console.log(`No matching recipients found for label ${label}.`);
     }
   } catch (error) {
     console.error(error);
