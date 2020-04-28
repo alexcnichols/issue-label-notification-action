@@ -73,10 +73,10 @@ test('corrects recipients when 1 recipient to suppress with missing amp', () => 
   expect(correctRecipients(recipients, recipientsToSuppress)).toBe(expectedRecipients);
 });
 
-test('corrects recipients when 2 recipients to suppress', () => {
+test('cleared recipients when all 2 recipients suppressed', () => {
   const recipients = `@docs-team @1234`;
   var recipientsToSuppress = ['@docs-team', '@1234'];
-  const expectedRecipients = `\`@docs-team\` \`@1234\``;
+  const expectedRecipients = ``;
 
   expect(correctRecipients(recipients, recipientsToSuppress)).toBe(expectedRecipients);
 });
@@ -98,6 +98,7 @@ test('find 1 mention in description', () => {
   const expectedMentions = ["@1234"];
 
   expect(findMentions(description)[0]).toBe(expectedMentions[0]);
+  expect(findMentions(description).length).toBe(1);
 });
 
 test('find 1 mention in description without space', () => {
@@ -105,6 +106,7 @@ test('find 1 mention in description without space', () => {
   const expectedMentions = ["@1234"];
 
   expect(findMentions(description)[0]).toBe(expectedMentions[0]);
+  expect(findMentions(description).length).toBe(1);
 });
 
 test('find 2 mentions in description', () => {
@@ -113,4 +115,13 @@ test('find 2 mentions in description', () => {
 
   expect(findMentions(description)[0]).toBe(expectedMentions[0]);
   expect(findMentions(description)[1]).toBe(expectedMentions[1]);
+  expect(findMentions(description).length).toBe(2);
+});
+
+test('ignore email as mention in description', () => {
+  const description = `Hello world cc: hello@docs-team.com @1234 This is a new issue`;
+  const expectedMentions = ["@1234"];
+
+  expect(findMentions(description)[0]).toBe(expectedMentions[0]);
+  expect(findMentions(description).length).toBe(1);
 });

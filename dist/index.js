@@ -526,13 +526,17 @@ async function run() {
       }
 
       const recipients = correctRecipients(match.split("=")[1], recipientsToSuppress);
-      const comment = correctMessage(message, recipients, label);
-      const createCommentResponse = await octokit.issues.createComment({
-        owner,
-        repo,
-        issue_number: issueNumber,
-        body: comment
-      });
+      if (recipients) {
+        const comment = correctMessage(message, recipients, label);
+        const createCommentResponse = await octokit.issues.createComment({
+          owner,
+          repo,
+          issue_number: issueNumber,
+          body: comment
+        });
+      } else {
+        console.log('All matching recipients were suppressed since they have already been mentioned in the body. Suppressing the comment all together.')
+      }
     } else {
       console.log(`No matching recipients found for label ${label}.`);
     }
@@ -2368,11 +2372,22 @@ function correctRecipients(recipients, recipientsToSuppress) {
 
     if (normalizedRecipientsToSuppress) {
       const recipientsList = normalizedRecipients.split(' ');
-      for (let index = 0; index < recipientsList.length; index++) {
-        const recipient = recipientsList[index];
-        recipientsList[index] = normalizedRecipientsToSuppress.indexOf(recipient) === -1 ? recipient : '`' + recipient + '`';
+      var suppressCounter = 0;
+      recipientsList.forEach(recipient => {
+        if (normalizedRecipientsToSuppress.indexOf(recipient) > -1) {
+          suppressCounter++
+        };
+      });
+      if (recipientsList.length == suppressCounter) {
+        // Clear recipients to signal that there are no non-suppressed recipients to mention.
+        correctedRecipients = '';
+      } else {
+        for (let index = 0; index < recipientsList.length; index++) {
+          const recipient = recipientsList[index];
+          recipientsList[index] = normalizedRecipientsToSuppress.indexOf(recipient) === -1 ? recipient : '`' + recipient + '`';
+        }
+        correctedRecipients = recipientsList.join(' ');
       }
-      correctedRecipients = recipientsList.join(' ');
     }
   }
   return correctedRecipients;

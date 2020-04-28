@@ -29,13 +29,17 @@ async function run() {
       }
 
       const recipients = correctRecipients(match.split("=")[1], recipientsToSuppress);
-      const comment = correctMessage(message, recipients, label);
-      const createCommentResponse = await octokit.issues.createComment({
-        owner,
-        repo,
-        issue_number: issueNumber,
-        body: comment
-      });
+      if (recipients) {
+        const comment = correctMessage(message, recipients, label);
+        const createCommentResponse = await octokit.issues.createComment({
+          owner,
+          repo,
+          issue_number: issueNumber,
+          body: comment
+        });
+      } else {
+        console.log('All matching recipients were suppressed since they have already been mentioned in the body. Suppressing the comment all together.')
+      }
     } else {
       console.log(`No matching recipients found for label ${label}.`);
     }

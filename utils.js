@@ -7,11 +7,22 @@ function correctRecipients(recipients, recipientsToSuppress) {
 
     if (normalizedRecipientsToSuppress) {
       const recipientsList = normalizedRecipients.split(' ');
-      for (let index = 0; index < recipientsList.length; index++) {
-        const recipient = recipientsList[index];
-        recipientsList[index] = normalizedRecipientsToSuppress.indexOf(recipient) === -1 ? recipient : '`' + recipient + '`';
+      var suppressCounter = 0;
+      recipientsList.forEach(recipient => {
+        if (normalizedRecipientsToSuppress.indexOf(recipient) > -1) {
+          suppressCounter++
+        };
+      });
+      if (recipientsList.length == suppressCounter) {
+        // Clear recipients to signal that there are no non-suppressed recipients to mention.
+        correctedRecipients = '';
+      } else {
+        for (let index = 0; index < recipientsList.length; index++) {
+          const recipient = recipientsList[index];
+          recipientsList[index] = normalizedRecipientsToSuppress.indexOf(recipient) === -1 ? recipient : '`' + recipient + '`';
+        }
+        correctedRecipients = recipientsList.join(' ');
       }
-      correctedRecipients = recipientsList.join(' ');
     }
   }
   return correctedRecipients;
