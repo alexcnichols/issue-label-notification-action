@@ -1,10 +1,11 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-const { correctRecipients, correctMessage } = require('./utils');
+const { correctRecipients, findMentions, correctMessage } = require('./utils');
 
 async function run() {
   try {
     const issueNumber = github.context.payload.issue.number;
+    const issueBody = github.context.payload.issue.body;
     const owner = github.context.repo.owner;
     const repo = github.context.repo.repo;
     const label = github.context.payload.label.name;
@@ -18,10 +19,16 @@ async function run() {
       return labelRecipient.split("=")[0] === label;
     });
 
-    const message = core.getInput('message');
-
     if (match) {
-      const recipients = correctRecipients(match.split("=")[1]);
+      const message = core.getInput('message');
+      const suppressMentioned = core.getInput('suppress-mentioned');
+      var recipientsToSuppress;
+
+      if (suppressMentioned && suppressMentioned === 'true') {
+        recipientsToSuppress = findMentions(issueBody);
+      }
+
+      const recipients = correctRecipients(match.split("=")[1], recipientsToSuppress);
       const comment = correctMessage(message, recipients, label);
       const createCommentResponse = await octokit.issues.createComment({
         owner,

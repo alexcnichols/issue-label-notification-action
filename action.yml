@@ -10,6 +10,10 @@ inputs:
   message:
     description: 'The message to post in the issue comment.'
     default: 'Heads up {recipients} - the "{label}" label was applied to this issue.'
+  suppress-mentioned:
+    description: 'Whether to suppress mentions of recipients already mentioned in the issue description.'
+    default: 'false'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'
